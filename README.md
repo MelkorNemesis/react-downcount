@@ -14,6 +14,10 @@ or
 yarn add react-downcount
 ```
 
+## Demo
+
+See live demo at [codesandbox.io](https://codesandbox.io/s/7yrpmk8lq6).
+
 ## Usage
 
 ### Import
