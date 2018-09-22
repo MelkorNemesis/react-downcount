@@ -9,6 +9,10 @@
 ```bash
 npm install --save react-downcount
 ```
+or
+```bash
+yarn add react-downcount
+```
 
 ## Usage
 
