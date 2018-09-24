@@ -133,15 +133,17 @@ describe('<Countdown />', () => {
       restoreDateNow()
     })
 
-    it('calls complete() when endDate passed and now >= endDate', () => {
+    it('calls stop() && complete() when endDate passed and now >= endDate', () => {
       // setup
       const endDate = new Date('2018-12-24 12:00:00')
       const endDateMinusTenMinutes = new Date('2018-12-24 11:50:00')
       const restoreDateNow = mock(global.Date, 'now', () => {
         return endDateMinusTenMinutes
       })
+
       class CountdownInitTest extends Countdown {
         complete = jest.fn()
+        stop = jest.fn()
       }
 
       // given that
@@ -153,9 +155,31 @@ describe('<Countdown />', () => {
       // because init() calls setState() which is async
       setTimeout(() => {
         expect(instance.complete).toHaveBeenCalled()
+        expect(instance.stop).toHaveBeenCalled()
       }, 0)
 
       // cleanup
+      restoreDateNow()
+    })
+
+    it('sets isCompleted to false', () => {
+      const endDate = new Date('2018-12-24 12:00:00')
+      const endDateMinusTenMinutes = new Date('2018-12-24 11:50:00')
+      const restoreDateNow = mock(global.Date, 'now', () => {
+        return endDateMinusTenMinutes
+      })
+
+      const wrapper = shallow(<Countdown endDate={endDate} />)
+      const instance = wrapper.instance()
+      instance.setState = jest.fn()
+      instance.init()
+
+      const setStateCallFirstArgument = instance.setState.mock.calls[0][0]
+      expect(setStateCallFirstArgument).toEqual({
+        isCompleted: false,
+        timestamp: Countdown.normalize(endDate)
+      })
+
       restoreDateNow()
     })
   })
@@ -220,6 +244,40 @@ describe('<Countdown />', () => {
 
       // cleanup
       restoreDateNow()
+    })
+  })
+
+  describe('stop()', () => {
+    let instance
+    let wrapper
+    const endDate = new Date('2018-12-24 12:00:00').getTime()
+
+    const DEFAULT_STATE = {
+      days: 0,
+      hrs: 0,
+      mins: 0,
+      secs: 0,
+      timestamp: null,
+      isCompleted: false
+    }
+
+    beforeAll(() => {
+      wrapper = shallow(<Countdown endDate={endDate} />)
+      instance = wrapper.instance()
+      instance.setState = jest.fn()
+    })
+
+    it('should set isCompleted to state correctly', () => {
+      instance.stop()
+      expect(instance.setState).toHaveBeenLastCalledWith({
+        ...DEFAULT_STATE
+      })
+
+      instance.stop({ isCompleted: true })
+      expect(instance.setState).toHaveBeenLastCalledWith({
+        ...DEFAULT_STATE,
+        isCompleted: true
+      })
     })
   })
 

@@ -15,7 +15,8 @@ const DEFAULT_STATE = {
   hrs: 0,
   mins: 0,
   secs: 0,
-  timestamp: null
+  timestamp: null,
+  isCompleted: false
 }
 
 export default class Countdown extends PureComponent {
@@ -69,12 +70,14 @@ export default class Countdown extends PureComponent {
     if (this.props.endDate) {
       const now = Date.now()
       this.setState({
-        timestamp: this.constructor.normalize(this.props.endDate)
+        timestamp: this.constructor.normalize(this.props.endDate),
+        isCompleted: false
       }, () => {
         if (now < this.state.timestamp) {
           this.update(now)
           this.start()
         } else {
+          this.stop({ isCompleted: true })
           this.complete()
         }
       })
@@ -88,7 +91,7 @@ export default class Countdown extends PureComponent {
   tick = () => {
     const now = Date.now()
     if (now >= this.state.timestamp) {
-      this.stop()
+      this.stop({ isCompleted: true })
       this.complete()
     } else {
       this.update(now)
@@ -127,10 +130,12 @@ export default class Countdown extends PureComponent {
     this.setState(timeLeft)
   }
 
-  stop = () => {
-    this.setState({ ...DEFAULT_STATE })
-    clearInterval(this.intervalId)
-    this.intervalId = null
+  stop = ({ isCompleted = false } = {}) => {
+    this.setState({ ...DEFAULT_STATE, isCompleted })
+    if (this.intervalId) {
+      clearInterval(this.intervalId)
+      this.intervalId = null
+    }
   }
 
   complete = () => {
@@ -150,11 +155,11 @@ export default class Countdown extends PureComponent {
       ...restProps
     } = this.props
 
-    const { days, hrs, mins, secs } = this.state
+    const { days, hrs, mins, secs, isCompleted } = this.state
 
     return (
       <div className={className || styles.countdown} {...restProps}>
-        {children({ days, hrs, mins, secs })}
+        {children({ days, hrs, mins, secs, isCompleted })}
       </div>
     )
   }

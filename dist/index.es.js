@@ -140,7 +140,8 @@ var DEFAULT_STATE = {
   hrs: 0,
   mins: 0,
   secs: 0,
-  timestamp: null
+  timestamp: null,
+  isCompleted: false
 };
 
 var Countdown = function (_PureComponent) {
@@ -162,12 +163,14 @@ var Countdown = function (_PureComponent) {
       if (_this.props.endDate) {
         var now = Date.now();
         _this.setState({
-          timestamp: _this.constructor.normalize(_this.props.endDate)
+          timestamp: _this.constructor.normalize(_this.props.endDate),
+          isCompleted: false
         }, function () {
           if (now < _this.state.timestamp) {
             _this.update(now);
             _this.start();
           } else {
+            _this.stop({ isCompleted: true });
             _this.complete();
           }
         });
@@ -177,7 +180,7 @@ var Countdown = function (_PureComponent) {
     }, _this.tick = function () {
       var now = Date.now();
       if (now >= _this.state.timestamp) {
-        _this.stop();
+        _this.stop({ isCompleted: true });
         _this.complete();
       } else {
         _this.update(now);
@@ -217,9 +220,15 @@ var Countdown = function (_PureComponent) {
 
       _this.setState(timeLeft);
     }, _this.stop = function () {
-      _this.setState(_extends({}, DEFAULT_STATE));
-      clearInterval(_this.intervalId);
-      _this.intervalId = null;
+      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref2$isCompleted = _ref2.isCompleted,
+          isCompleted = _ref2$isCompleted === undefined ? false : _ref2$isCompleted;
+
+      _this.setState(_extends({}, DEFAULT_STATE, { isCompleted: isCompleted }));
+      if (_this.intervalId) {
+        clearInterval(_this.intervalId);
+        _this.intervalId = null;
+      }
     }, _this.complete = function () {
       var onCompleted = _this.props.onCompleted;
 
@@ -261,13 +270,14 @@ var Countdown = function (_PureComponent) {
           days = _state.days,
           hrs = _state.hrs,
           mins = _state.mins,
-          secs = _state.secs;
+          secs = _state.secs,
+          isCompleted = _state.isCompleted;
 
 
       return React.createElement(
         'div',
         _extends({ className: className || styles.countdown }, restProps),
-        children({ days: days, hrs: hrs, mins: mins, secs: secs })
+        children({ days: days, hrs: hrs, mins: mins, secs: secs, isCompleted: isCompleted })
       );
     }
   }]);

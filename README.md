@@ -35,7 +35,7 @@ import Countdown, { doubleDigit } from 'react-downcount'
 |`useHours`|no|`true`|`true` / `false`|If `false`, the remaining horus are recalculated to minutes, see more in examples section|
 |`useMinutes`|no|`true`|`true` / `false`|If `false`, the remaining minutes are recalculated to seconds, see more in examples section|
 |`className`|no|-|`string`|`<Countdown />`'s wrapper className|
-|`children`|no|`defaultRenderer`|`({days, hrs, mins, secs}) => { ... }`|If passed, `children` can only be a function that is used as a render callback to create custom `<Countdown />` renderer|
+|`children`|no|`defaultRenderer`|`({ days, hrs, mins, secs, isCompleted }) => { ... }`|If passed, `children` can only be a function that is used as a render callback to create custom `<Countdown />` renderer|
 
 
 ### Examples
@@ -51,14 +51,14 @@ produces e.g.
 
 #### 2. Custom renderer
 You can use the custom renderer to create arbitrary countdown outputs. You can control rendering each property based on it's value or create language mutations.
-Each custom renderer is passed the following object `{ days, hrs, mins, secs }`.
+Each custom renderer is passed the following object `{ days, hrs, mins, secs, isCompleted }`.
 
 ```jsx harmony
 const endDate = new Date('2020-12-24') // Christmas, yay
-const countdownRenderer = ({days, hrs, mins, secs}) => {
-  return <Fragment>
-    {days > 0 && `${days} days `}{hrs} hours {doubleDigit(mins)} minutes {doubleDigit(secs)} seconds
-  </Fragment>
+const countdownRenderer = ({ days, hrs, mins, secs, isCompleted }) => {
+  return isCompleted
+      ? 'Done'
+      : <Fragment>{days > 0 && `${days} days `}{hrs} hours {doubleDigit(mins)} minutes {doubleDigit(secs)} seconds</Fragment>
 }
 <Countdown endDate={endDate} /> 
 ```
